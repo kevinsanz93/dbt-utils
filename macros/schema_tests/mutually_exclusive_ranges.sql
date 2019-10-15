@@ -41,7 +41,12 @@ validation_errors as (
     select * from calc
     where not(
         -- For each record: lower_bound should be < upper_bound.
-        (lower_bound < upper_bound)
+        -- Coalesce it to handle null cases for the first and last records
+        coalesce(
+            lower_bound < upper_bound,
+            (is_first_record or is_last_record),
+            false
+        )
 
         -- For each record: upper_bound <= the next lower_bound.
         -- Coalesce it to handle null cases for the last record.
